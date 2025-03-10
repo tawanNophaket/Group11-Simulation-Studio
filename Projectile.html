@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ideal Projectile Motion Simulator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4cc9f0;
+      --accent: #f72585;
+      --success: #4cd97b;
+      --warning: #ffaa00;
+      --bg-dark: #1e1e1e;
+      --bg-panel: #2d2d2d;
+      --text-light: #ffffff;
+      --text-muted: #adb5bd;
+      --border-color: #495057;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      background-color: rgba(0, 0, 0, 0.2);
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+
+    .main-title {
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Slider styles */
+    .custom-range {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #424242;
+      outline: none;
+      margin: 10px 0;
+    }
+
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Button styles */
+    .btn {
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 8px 16px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      border-color: var(--success);
+    }
+
+    .btn-accent {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Variable displays */
+    .variable-item {
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .variable-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .variable-value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+
+    /* Canvas container */
+    .chart-container {
+      position: relative;
+      height: 400px;
+      background-color: #222;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    /* Footer */
+    .footer {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 2rem;
+      margin-bottom: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Table styles */
+    .table {
+      color: var(--text-light);
+      border-color: var(--border-color);
+    }
+
+    .table th,
+    .table td {
+      text-align: center;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 300px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-4">
+    <h1 class="main-title mb-4">
+      <i class="fas fa-volleyball"></i> Ideal Projectile Motion Simulator
+    </h1>
+
+    <div class="row">
+      <!-- Left column - Trajectory Chart -->
+      <div class="col-lg-8">
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span>Trajectory Simulation (Ideal Physics)</span>
+            <div>
+              <span id="timeDisplay" class="badge bg-secondary me-2">Time: 0.00 s</span>
+              <span id="heightDisplay" class="badge bg-secondary">Height: 0.35 m</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="trajectoryChart"></canvas>
+            </div>
+            <div class="d-flex flex-wrap mt-3">
+              <button id="simulateBtn" class="btn btn-accent">
+                <i class="fas fa-play me-2"></i>Simulate
+              </button>
+              <button id="optimizeBtn" class="btn btn-success">
+                <i class="fas fa-bullseye me-2"></i>Optimize Parameters
+              </button>
+              <button id="calculateBtn" class="btn btn-primary">
+                <i class="fas fa-calculator me-2"></i>Calculate Range
+              </button>
+              <button id="resetBtn" class="btn btn-secondary">
+                <i class="fas fa-undo me-2"></i>Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output Variables -->
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-chart-line me-2"></i>Results
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="variable-item">
+                  <span class="variable-label">Distance Reached:</span>
+                  <span id="distanceOutput" class="variable-value">0.00 m</span>
+                </div>
+                <div class="variable-item">
+                  <span class="variable-label">Maximum Height:</span>
+                  <span id="maxHeightOutput" class="variable-value">0.00 m</span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="variable-item">
+                  <span class="variable-label">Flight Time:</span>
+                  <span id="flightTimeOutput" class="variable-value">0.00 s</span>
+                </div>
+                <div class="variable-item">
+                  <span class="variable-label">Target Distance:</span>
+                  <span id="targetOutput" class="variable-value">2.00 m</span>
+                </div>
+                <div class="variable-item">
+                  <span class="variable-label">Target Error:</span>
+                  <span id="targetErrorOutput" class="variable-value">0.00 m</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column - Parameters & Table -->
+      <div class="col-lg-4">
+        <!-- Input Variables -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <i class="fas fa-sliders-h me-2"></i>Input Parameters
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="angleSlider" class="form-label d-flex justify-content-between">
+                <span>Launch Angle</span>
+                <span id="angleValue">45°</span>
+              </label>
+              <input type="range" class="custom-range" id="angleSlider" min="0" max="90" value="45">
+            </div>
+
+            <div class="mb-3">
+              <label for="velocitySlider" class="form-label d-flex justify-content-between">
+                <span>Initial Velocity</span>
+                <span id="velocityValue">5.0 m/s</span>
+              </label>
+              <input type="range" class="custom-range" id="velocitySlider" min="1" max="10" step="0.1" value="5">
+            </div>
+
+            <div class="mb-3">
+              <label for="targetSlider" class="form-label d-flex justify-content-between">
+                <span>Target Distance</span>
+                <span id="targetValue">2.0 m</span>
+              </label>
+              <input type="range" class="custom-range" id="targetSlider" min="0.5" max="6" step="0.1" value="2">
+            </div>
+
+            <div class="text-center mt-4">
+              <p class="mb-1">Equation Used:</p>
+              <p><strong>Range = (v₀·cos(θ))·t</strong></p>
+              <p><strong>t = [(v₀·sin(θ)) + √((v₀·sin(θ))² + 2·g·h₀)]/g</strong></p>
+              <p class="text-muted">Where: g = 9.8 m/s², h₀ = 0.35076 m</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reference Table -->
+        <div class="card">
+          <div class="card-header">
+            <i class="fas fa-table me-2"></i>Reference Table
+          </div>
+          <div class="card-body">
+            <small class="text-muted d-block mb-2">Selected distances (meters):</small>
+            <div class="table-responsive">
+              <table class="table table-dark table-sm">
+                <thead>
+                  <tr>
+                    <th>Angle</th>
+                    <th>2 m/s</th>
+                    <th>4 m/s</th>
+                    <th>6 m/s</th>
+                    <th>8 m/s</th>
+                  </tr>
+                </thead>
+                <tbody id="miniTableBody">
+                  <!-- Will be filled dynamically -->
+                </tbody>
+              </table>
+            </div>
+            <button id="tableBtn" class="btn btn-outline-info mt-2 w-100" data-bs-toggle="modal"
+              data-bs-target="#tableModal">
+              <i class="fas fa-expand me-2"></i>View Full Table
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      Ideal Projectile Motion Simulator | Strike Height: 350.76 mm | Gravity: 9.8 m/s²
+    </div>
+  </div>
+
+  <!-- Full Table Modal -->
+  <div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content bg-dark text-light">
+        <div class="modal-header">
+          <h5 class="modal-title" id="tableModalLabel">Complete Distance Reference Table (meters)</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table table-dark table-hover">
+              <thead>
+                <tr>
+                  <th>Angle (°)</th>
+                  <th>2 m/s</th>
+                  <th>3 m/s</th>
+                  <th>4 m/s</th>
+                  <th>5 m/s</th>
+                  <th>6 m/s</th>
+                  <th>7 m/s</th>
+                  <th>8 m/s</th>
+                </tr>
+              </thead>
+              <tbody id="fullTableBody">
+                <!-- Will be filled dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // Constants
+    const GRAVITY = 9.8; // m/s²
+    const INITIAL_HEIGHT = 0.35076; // m
+
+    // DOM Elements
+    const angleSlider = document.getElementById('angleSlider');
+    const velocitySlider = document.getElementById('velocitySlider');
+    const targetSlider = document.getElementById('targetSlider');
+    const angleValue = document.getElementById('angleValue');
+    const velocityValue = document.getElementById('velocityValue');
+    const targetValue = document.getElementById('targetValue');
+    const distanceOutput = document.getElementById('distanceOutput');
+    const maxHeightOutput = document.getElementById('maxHeightOutput');
+    const flightTimeOutput = document.getElementById('flightTimeOutput');
+    const targetOutput = document.getElementById('targetOutput');
+    const targetErrorOutput = document.getElementById('targetErrorOutput');
+    const simulateBtn = document.getElementById('simulateBtn');
+    const optimizeBtn = document.getElementById('optimizeBtn');
+    const calculateBtn = document.getElementById('calculateBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const tableBtn = document.getElementById('tableBtn');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const heightDisplay = document.getElementById('heightDisplay');
+    const miniTableBody = document.getElementById('miniTableBody');
+    const fullTableBody = document.getElementById('fullTableBody');
+
+    // Initialize Chart
+    const ctx = document.getElementById('trajectoryChart').getContext('2d');
+    const trajectoryChart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'Trajectory',
+            data: [],
+            showLine: true,
+            borderColor: '#4cc9f0',
+            backgroundColor: 'rgba(76, 201, 240, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+          },
+          {
+            label: 'Ball Position',
+            data: [],
+            pointBackgroundColor: '#f72585',
+            pointBorderColor: '#f72585',
+            pointRadius: 8,
+            pointHoverRadius: 10
+          },
+          {
+            label: 'Ground',
+            data: [],
+            showLine: true,
+            borderColor: '#555555',
+            borderWidth: 1,
+            pointRadius: 0
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 0
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Horizontal Distance (m)',
+              color: '#adb5bd'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#adb5bd'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Height (m)',
+              color: '#adb5bd'
+            },
+            min: 0,
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#adb5bd'
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            labels: {
+              color: '#adb5bd'
+            }
+          },
+          tooltip: {
+            backgroundColor: '#2d2d2d',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderColor: '#495057',
+            borderWidth: 1,
+            callbacks: {
+              label: function (context) {
+                return `(${context.parsed.x.toFixed(2)} m, ${context.parsed.y.toFixed(2)} m)`;
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // Core physics calculation functions
+    function degreesToRadians(degrees) {
+      return degrees * Math.PI / 180;
+    }
+
+    function calculateTimeOfFlight(v0, angleDeg) {
+      const angleRad = degreesToRadians(angleDeg);
+      const vy = v0 * Math.sin(angleRad);
+
+      // Using the formula: y = h0 + vy*t - 0.5*g*t^2 = 0
+      // Solve for time when y = 0
+      const discriminant = Math.pow(vy, 2) + 2 * GRAVITY * INITIAL_HEIGHT;
+      const t = (vy + Math.sqrt(discriminant)) / GRAVITY;
+
+      return t;
+    }
+
+    function calculateRange(v0, angleDeg) {
+      const angleRad = degreesToRadians(angleDeg);
+      const t = calculateTimeOfFlight(v0, angleDeg);
+      const x = v0 * Math.cos(angleRad) * t;
+
+      return x;
+    }
+
+    function calculateMaxHeight(v0, angleDeg) {
+      const angleRad = degreesToRadians(angleDeg);
+      const vy = v0 * Math.sin(angleRad);
+
+      // Time to reach maximum height (vy = 0)
+      const tMax = vy / GRAVITY;
+
+      // Calculate position at that time
+      const yMax = INITIAL_HEIGHT + vy * tMax - 0.5 * GRAVITY * Math.pow(tMax, 2);
+
+      return yMax;
+    }
+
+    function calculateTrajectory(v0, angleDeg, numPoints = 100) {
+      const angleRad = degreesToRadians(angleDeg);
+      const vx = v0 * Math.cos(angleRad);
+      const vy = v0 * Math.sin(angleRad);
+
+      const totalTime = calculateTimeOfFlight(v0, angleDeg);
+      const timeStep = totalTime / (numPoints - 1);
+
+      const trajectory = [];
+
+      for (let i = 0; i < numPoints; i++) {
+        const t = i * timeStep;
+        const x = vx * t;
+        const y = INITIAL_HEIGHT + vy * t - 0.5 * GRAVITY * Math.pow(t, 2);
+
+        if (y >= 0) {
+          trajectory.push({ x, y });
+        }
+      }
+
+      return trajectory;
+    }
+
+    // UI update functions
+    function findOptimalParameters(targetDistance) {
+      let bestAngle = null;
+      let bestVelocity = Infinity;
+      let bestError = Infinity;
+
+      // Try angles from 10 to 80 degrees
+      for (let angle = 10; angle <= 80; angle++) {
+        // Find required velocity for each angle
+        for (let v0 = 1; v0 <= 10; v0 += 0.1) {
+          const rangeDistance = calculateRange(v0, angle);
+          const error = Math.abs(rangeDistance - targetDistance);
+
+          // If we found a velocity that gives a distance close to the target
+          // and it's less than the current best velocity
+          if (error < bestError || (error === bestError && v0 < bestVelocity)) {
+            bestError = error;
+            bestAngle = angle;
+            bestVelocity = v0;
+          }
+
+          // If it's accurate enough, stop
+          if (error < 0.01) {
+            break;
+          }
+        }
+      }
+
+      // If no suitable parameters found, use 45 degrees (theoretically gives max distance)
+      if (bestAngle === null) {
+        bestAngle = 45;
+        // Approximate calculation
+        const v01 = Math.sqrt(targetDistance * GRAVITY);
+        const v02 = targetDistance / (Math.cos(45 * Math.PI / 180) * calculateTimeOfFlight(v01, 45));
+        bestVelocity = (v01 + v02) / 2;
+      }
+
+      return { angle: bestAngle, velocity: parseFloat(bestVelocity.toFixed(1)) };
+    }
+
+    function updateSliderValues() {
+      angleValue.textContent = `${angleSlider.value}°`;
+      velocityValue.textContent = `${parseFloat(velocitySlider.value).toFixed(1)} m/s`;
+      targetValue.textContent = `${parseFloat(targetSlider.value).toFixed(1)} m`;
+    }
+
+    function updateOutputValues() {
+      const angle = parseFloat(angleSlider.value);
+      const velocity = parseFloat(velocitySlider.value);
+      const targetDistance = parseFloat(targetSlider.value);
+
+      const range = calculateRange(velocity, angle);
+      const maxHeight = calculateMaxHeight(velocity, angle);
+      const flightTime = calculateTimeOfFlight(velocity, angle);
+      const targetError = Math.abs(range - targetDistance);
+
+      distanceOutput.textContent = `${range.toFixed(2)} m`;
+      maxHeightOutput.textContent = `${maxHeight.toFixed(2)} m`;
+      flightTimeOutput.textContent = `${flightTime.toFixed(2)} s`;
+      targetOutput.textContent = `${targetDistance.toFixed(2)} m`;
+      targetErrorOutput.textContent = `${targetError.toFixed(2)} m`;
+
+      // Update chart with new trajectory
+      updateTrajectoryChart();
+    }
+
+    function updateTrajectoryChart() {
+      const angle = parseFloat(angleSlider.value);
+      const velocity = parseFloat(velocitySlider.value);
+      const targetDistance = parseFloat(targetSlider.value);
+
+      // Calculate new trajectory
+      const trajectory = calculateTrajectory(velocity, angle);
+
+      // Update trajectory dataset
+      trajectoryChart.data.datasets[0].data = trajectory;
+
+      // Update ball position (initially at start)
+      trajectoryChart.data.datasets[1].data = trajectory.length > 0 ? [trajectory[0]] : [];
+
+      // Update ground line
+      const maxDistance = Math.max(...trajectory.map(point => point.x), targetDistance) * 1.1;
+      trajectoryChart.data.datasets[2].data = [
+        { x: 0, y: 0 },
+        { x: maxDistance, y: 0 }
+      ];
+
+      // Update scales
+      const maxHeight = Math.max(...trajectory.map(point => point.y), INITIAL_HEIGHT) * 1.1;
+      trajectoryChart.options.scales.x.max = maxDistance;
+      trajectoryChart.options.scales.y.max = maxHeight;
+
+      // Draw target line
+      if (trajectoryChart.data.datasets.length > 3) {
+        trajectoryChart.data.datasets[3].data = [
+          { x: targetDistance, y: 0 },
+          { x: targetDistance, y: maxHeight }
+        ];
+      } else {
+        // Add target line dataset if it doesn't exist
+        trajectoryChart.data.datasets.push({
+          label: 'Target',
+          data: [
+            { x: targetDistance, y: 0 },
+            { x: targetDistance, y: maxHeight }
+          ],
+          showLine: true,
+          borderColor: '#ffaa00',
+          borderWidth: 2,
+          borderDash: [6, 6],
+          pointRadius: 0
+        });
+      }
+
+      // Update chart
+      trajectoryChart.update();
+    }
+
+    function simulateTrajectory() {
+      const angle = parseFloat(angleSlider.value);
+      const velocity = parseFloat(velocitySlider.value);
+
+      // Calculate trajectory
+      const trajectory = calculateTrajectory(velocity, angle);
+      if (trajectory.length === 0) return;
+
+      // Animation settings
+      const animationDuration = 2000; // ms
+      const frameDuration = 30; // ms
+      const totalFrames = Math.min(Math.floor(animationDuration / frameDuration), trajectory.length);
+      const frameStep = trajectory.length / totalFrames;
+
+      let currentFrame = 0;
+      let animationId;
+
+      // Animation function
+      function animate() {
+        if (currentFrame >= totalFrames) {
+          clearInterval(animationId);
+          return;
+        }
+
+        // Get current position
+        const frameIndex = Math.min(Math.floor(currentFrame * frameStep), trajectory.length - 1);
+        const position = trajectory[frameIndex];
+
+        // Update ball position
+        trajectoryChart.data.datasets[1].data = [position];
+        trajectoryChart.update();
+
+        // Update time and height displays
+        const totalTime = calculateTimeOfFlight(velocity, angle);
+        const currentTime = (currentFrame / totalFrames) * totalTime;
+        timeDisplay.textContent = `Time: ${currentTime.toFixed(2)} s`;
+        heightDisplay.textContent = `Height: ${position.y.toFixed(2)} m`;
+
+        currentFrame++;
+      }
+
+      // Start animation
+      clearInterval(animationId);
+      currentFrame = 0;
+      animationId = setInterval(animate, frameDuration);
+    }
+
+    function resetParameters() {
+      // Reset sliders to default values
+      angleSlider.value = 45;
+      velocitySlider.value = 5;
+
+      // Update displays
+      updateSliderValues();
+      updateOutputValues();
+
+      // Reset time and height displays
+      timeDisplay.textContent = 'Time: 0.00 s';
+      heightDisplay.textContent = `Height: ${INITIAL_HEIGHT.toFixed(2)} m`;
+    }
+
+    function populateTables() {
+      // Generate reference table data
+      const angles = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60];
+      const velocities = [2, 3, 4, 5, 6, 7, 8];
+
+      // Fill mini table (selected rows and columns)
+      miniTableBody.innerHTML = '';
+      const miniTableAngles = [10, 30, 45, 60];
+      const miniTableVelocities = [2, 4, 6, 8];
+
+      miniTableAngles.forEach(angle => {
+        const tr = document.createElement('tr');
+
+        // Add angle cell
+        const angleCell = document.createElement('td');
+        angleCell.textContent = angle + '°';
+        tr.appendChild(angleCell);
+
+        // Add selected velocity cells
+        miniTableVelocities.forEach(velocity => {
+          const distanceCell = document.createElement('td');
+          const distance = calculateRange(velocity, angle);
+          distanceCell.textContent = distance.toFixed(2);
+          tr.appendChild(distanceCell);
+        });
+
+        miniTableBody.appendChild(tr);
+      });
+
+      // Fill full table
+      fullTableBody.innerHTML = '';
+
+      angles.forEach(angle => {
+        const tr = document.createElement('tr');
+
+        // Add angle cell
+        const angleCell = document.createElement('td');
+        angleCell.textContent = angle + '°';
+        tr.appendChild(angleCell);
+
+        // Add all velocity cells
+        velocities.forEach(velocity => {
+          const distanceCell = document.createElement('td');
+          const distance = calculateRange(velocity, angle);
+          distanceCell.textContent = distance.toFixed(2);
+          tr.appendChild(distanceCell);
+        });
+
+        fullTableBody.appendChild(tr);
+      });
+    }
+
+    function optimizeParameters() {
+      const targetDistance = parseFloat(targetSlider.value);
+      const { angle, velocity } = findOptimalParameters(targetDistance);
+
+      // Update sliders
+      angleSlider.value = angle;
+      velocitySlider.value = velocity;
+
+      // Update displays
+      updateSliderValues();
+      updateOutputValues();
+
+      // Alert the user
+      alert(`Optimal parameters calculated: Angle ${angle}°, Velocity ${velocity.toFixed(1)} m/s`);
+    }
+
+    // Event listeners
+    angleSlider.addEventListener('input', () => {
+      updateSliderValues();
+      updateOutputValues();
+    });
+
+    velocitySlider.addEventListener('input', () => {
+      updateSliderValues();
+      updateOutputValues();
+    });
+
+    targetSlider.addEventListener('input', () => {
+      updateSliderValues();
+      updateOutputValues();
+    });
+
+    simulateBtn.addEventListener('click', simulateTrajectory);
+    optimizeBtn.addEventListener('click', optimizeParameters);
+    calculateBtn.addEventListener('click', updateOutputValues);
+    resetBtn.addEventListener('click', resetParameters);
+    tableBtn.addEventListener('click', populateTables);
+
+    // Initialize the app
+    updateSliderValues();
+    updateOutputValues();
+    populateTables(); // Populate mini table on load
+  </script>
+</body>
+
+</html>
