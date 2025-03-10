@@ -1,51 +1,83 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ideal Projectile Motion Simulator</title>
+  <title>จำลองการเคลื่อนที่แบบโปรเจกไทล์</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #4cc9f0;
-      --accent: #f72585;
-      --success: #4cd97b;
-      --warning: #ffaa00;
-      --bg-dark: #1e1e1e;
-      --bg-panel: #2d2d2d;
+      --primary: #ff8800;
+      --accent: #ff5500;
+      --success: #ff9900;
+      --warning: #ffcc00;
+      --bg-dark: #121212;
+      --bg-panel: #1e1e1e;
       --text-light: #ffffff;
       --text-muted: #adb5bd;
-      --border-color: #495057;
+      --border-color: #333333;
+      --glow-primary: 0 0 15px rgba(255, 136, 0, 0.5);
+      --glow-accent: 0 0 15px rgba(255, 85, 0, 0.5);
+      --glow-success: 0 0 15px rgba(255, 153, 0, 0.5);
+      --glow-warning: 0 0 15px rgba(255, 204, 0, 0.5);
     }
 
     body {
       background-color: var(--bg-dark);
       color: var(--text-light);
-      font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Anuphan', sans-serif;
+      background-image: radial-gradient(circle at top right, rgba(255, 136, 0, 0.1), transparent 60%),
+                        radial-gradient(circle at bottom left, rgba(255, 85, 0, 0.1), transparent 60%);
+      background-attachment: fixed;
+      transition: all 0.3s ease;
     }
 
     .card {
       background-color: var(--bg-panel);
       border: 1px solid var(--border-color);
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      margin-bottom: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      margin-bottom: 1.8rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
     }
 
     .card-header {
-      background-color: rgba(0, 0, 0, 0.2);
+      background-color: rgba(0, 0, 0, 0.3);
       border-bottom: 1px solid var(--border-color);
       font-weight: 600;
+      padding: 1rem 1.25rem;
     }
 
     .main-title {
       color: var(--primary);
       font-weight: 700;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
       text-align: center;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), var(--glow-primary);
+      letter-spacing: 1px;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    .main-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 25%;
+      width: 50%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
     }
 
     /* Slider styles */
@@ -53,92 +85,158 @@
       -webkit-appearance: none;
       width: 100%;
       height: 8px;
-      border-radius: 4px;
-      background: #424242;
+      border-radius: 8px;
+      background: #333;
       outline: none;
-      margin: 10px 0;
+      margin: 12px 0;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
     }
 
     .custom-range::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: var(--primary);
       cursor: pointer;
+      box-shadow: 0 0 10px rgba(255, 136, 0, 0.7);
+      transition: all 0.2s ease;
+    }
+    
+    .custom-range::-webkit-slider-thumb:hover {
+      transform: scale(1.1);
+      background: #ff9900;
     }
 
     /* Button styles */
     .btn {
       font-weight: 600;
-      border-radius: 6px;
-      padding: 8px 16px;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      margin-right: 10px;
-      margin-bottom: 10px;
+      border-radius: 8px;
+      padding: 10px 18px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+      margin-right: 12px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.9rem;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.4s ease;
+      z-index: -1;
+    }
+    
+    .btn:hover::before {
+      left: 0;
     }
 
     .btn-primary {
       background-color: var(--primary);
       border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(255, 136, 0, 0.3);
+    }
+    
+    .btn-primary:hover {
+      box-shadow: 0 6px 15px rgba(255, 136, 0, 0.5), var(--glow-primary);
     }
 
     .btn-success {
       background-color: var(--success);
       border-color: var(--success);
+      box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+    }
+    
+    .btn-success:hover {
+      box-shadow: 0 6px 15px rgba(255, 153, 0, 0.5), var(--glow-success);
     }
 
     .btn-accent {
       background-color: var(--accent);
       border-color: var(--accent);
       color: white;
+      box-shadow: 0 4px 12px rgba(255, 85, 0, 0.3);
+    }
+    
+    .btn-accent:hover {
+      box-shadow: 0 6px 15px rgba(255, 85, 0, 0.5), var(--glow-accent);
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transform: translateY(-3px);
+    }
+    
+    .btn:active {
+      transform: translateY(1px);
     }
 
     /* Variable displays */
     .variable-item {
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background-color: rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+    }
+    
+    .variable-item:hover {
+      background-color: rgba(0, 0, 0, 0.25);
+      transform: translateX(5px);
     }
 
     .variable-label {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
     .variable-value {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 600;
       color: var(--text-light);
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
+      position: relative;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(255, 136, 0, 0.1);
     }
 
     /* Canvas container */
     .chart-container {
       position: relative;
-      height: 400px;
-      background-color: #222;
-      border-radius: 8px;
-      padding: 15px;
-      margin-bottom: 20px;
+      height: 420px;
+      background-color: rgba(30, 30, 30, 0.7);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
     }
 
     /* Footer */
     .footer {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       text-align: center;
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       margin-bottom: 1.5rem;
-      padding-top: 1rem;
+      padding-top: 1.5rem;
       border-top: 1px solid var(--border-color);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
     }
 
     /* Table styles */
@@ -147,16 +245,49 @@
       border-color: var(--border-color);
     }
 
-    .table th,
+    .table th {
+      text-align: center;
+      background-color: rgba(0, 0, 0, 0.2);
+      border-color: var(--border-color);
+      font-weight: 600;
+      padding: 10px;
+    }
+    
     .table td {
       text-align: center;
+      padding: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .table tbody tr {
+      transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+      background-color: rgba(255, 136, 0, 0.1) !important;
     }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
       .chart-container {
-        height: 300px;
+        height: 320px;
       }
+      
+      .btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+      }
+    }
+    
+    /* Animation */
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 136, 0, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 136, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 136, 0, 0); }
+    }
+    
+    #simulateBtn {
+      animation: pulse 2s infinite;
     }
   </style>
 </head>
@@ -164,7 +295,7 @@
 <body>
   <div class="container py-4">
     <h1 class="main-title mb-4">
-      <i class="fas fa-volleyball"></i> Ideal Projectile Motion Simulator
+      <i class="fas fa-volleyball"></i> จำลองการเคลื่อนที่แบบโปรเจกไทล์
     </h1>
 
     <div class="row">
@@ -172,10 +303,10 @@
       <div class="col-lg-8">
         <div class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Trajectory Simulation (Ideal Physics)</span>
+            <span>การจำลองเส้นทางการเคลื่อนที่ (ฟิสิกส์อุดมคติ)</span>
             <div>
-              <span id="timeDisplay" class="badge bg-secondary me-2">Time: 0.00 s</span>
-              <span id="heightDisplay" class="badge bg-secondary">Height: 0.35 m</span>
+              <span id="timeDisplay" class="badge bg-secondary me-2">เวลา: 0.00 วินาที</span>
+              <span id="heightDisplay" class="badge bg-secondary">ความสูง: 0.35 เมตร</span>
             </div>
           </div>
           <div class="card-body">
@@ -184,16 +315,16 @@
             </div>
             <div class="d-flex flex-wrap mt-3">
               <button id="simulateBtn" class="btn btn-accent">
-                <i class="fas fa-play me-2"></i>Simulate
+                <i class="fas fa-play me-2"></i>จำลอง
               </button>
               <button id="optimizeBtn" class="btn btn-success">
-                <i class="fas fa-bullseye me-2"></i>Optimize Parameters
+                <i class="fas fa-bullseye me-2"></i>หาค่าเหมาะสม
               </button>
               <button id="calculateBtn" class="btn btn-primary">
-                <i class="fas fa-calculator me-2"></i>Calculate Range
+                <i class="fas fa-calculator me-2"></i>คำนวณระยะทาง
               </button>
               <button id="resetBtn" class="btn btn-secondary">
-                <i class="fas fa-undo me-2"></i>Reset
+                <i class="fas fa-undo me-2"></i>รีเซ็ต
               </button>
             </div>
           </div>
@@ -202,32 +333,32 @@
         <!-- Output Variables -->
         <div class="card">
           <div class="card-header">
-            <i class="fas fa-chart-line me-2"></i>Results
+            <i class="fas fa-chart-line me-2"></i>ผลลัพธ์
           </div>
           <div class="card-body">
             <div class="row">
               <div class="col-md-6">
                 <div class="variable-item">
-                  <span class="variable-label">Distance Reached:</span>
-                  <span id="distanceOutput" class="variable-value">0.00 m</span>
+                  <span class="variable-label"><i class="fas fa-ruler-horizontal me-2"></i>ระยะทางที่ไปถึง:</span>
+                  <span id="distanceOutput" class="variable-value">0.00 ม.</span>
                 </div>
                 <div class="variable-item">
-                  <span class="variable-label">Maximum Height:</span>
-                  <span id="maxHeightOutput" class="variable-value">0.00 m</span>
+                  <span class="variable-label"><i class="fas fa-arrow-up me-2"></i>ความสูงสูงสุด:</span>
+                  <span id="maxHeightOutput" class="variable-value">0.00 ม.</span>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="variable-item">
-                  <span class="variable-label">Flight Time:</span>
-                  <span id="flightTimeOutput" class="variable-value">0.00 s</span>
+                  <span class="variable-label"><i class="fas fa-clock me-2"></i>เวลาในการเคลื่อนที่:</span>
+                  <span id="flightTimeOutput" class="variable-value">0.00 วินาที</span>
                 </div>
                 <div class="variable-item">
-                  <span class="variable-label">Target Distance:</span>
-                  <span id="targetOutput" class="variable-value">2.00 m</span>
+                  <span class="variable-label"><i class="fas fa-bullseye me-2"></i>ระยะเป้าหมาย:</span>
+                  <span id="targetOutput" class="variable-value">2.00 ม.</span>
                 </div>
                 <div class="variable-item">
-                  <span class="variable-label">Target Error:</span>
-                  <span id="targetErrorOutput" class="variable-value">0.00 m</span>
+                  <span class="variable-label"><i class="fas fa-exclamation-circle me-2"></i>ความคลาดเคลื่อน:</span>
+                  <span id="targetErrorOutput" class="variable-value">0.00 ม.</span>
                 </div>
               </div>
             </div>
@@ -240,12 +371,12 @@
         <!-- Input Variables -->
         <div class="card mb-4">
           <div class="card-header">
-            <i class="fas fa-sliders-h me-2"></i>Input Parameters
+            <i class="fas fa-sliders-h me-2"></i>พารามิเตอร์
           </div>
           <div class="card-body">
             <div class="mb-3">
               <label for="angleSlider" class="form-label d-flex justify-content-between">
-                <span>Launch Angle</span>
+                <span>มุมยิง</span>
                 <span id="angleValue">45°</span>
               </label>
               <input type="range" class="custom-range" id="angleSlider" min="0" max="90" value="45">
@@ -253,25 +384,27 @@
 
             <div class="mb-3">
               <label for="velocitySlider" class="form-label d-flex justify-content-between">
-                <span>Initial Velocity</span>
-                <span id="velocityValue">5.0 m/s</span>
+                <span>ความเร็วต้น</span>
+                <span id="velocityValue">5.00 ม./วิ.</span>
               </label>
               <input type="range" class="custom-range" id="velocitySlider" min="1" max="10" step="0.1" value="5">
             </div>
 
             <div class="mb-3">
               <label for="targetSlider" class="form-label d-flex justify-content-between">
-                <span>Target Distance</span>
-                <span id="targetValue">2.0 m</span>
+                <span>ระยะเป้าหมาย</span>
+                <span id="targetValue">2.00 ม.</span>
               </label>
               <input type="range" class="custom-range" id="targetSlider" min="0.5" max="6" step="0.1" value="2">
             </div>
 
             <div class="text-center mt-4">
-              <p class="mb-1">Equation Used:</p>
-              <p><strong>Range = (v₀·cos(θ))·t</strong></p>
-              <p><strong>t = [(v₀·sin(θ)) + √((v₀·sin(θ))² + 2·g·h₀)]/g</strong></p>
-              <p class="text-muted">Where: g = 9.8 m/s², h₀ = 0.35076 m</p>
+              <p class="mb-1 text-muted">สมการที่ใช้:</p>
+              <div class="equation-box p-3 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 3px solid var(--primary);">
+                <p class="mb-1"><strong>ระยะทาง = (v₀·cos(θ))·t</strong></p>
+                <p class="mb-1"><strong>t = [(v₀·sin(θ)) + √((v₀·sin(θ))² + 2·g·h₀)]/g</strong></p>
+              </div>
+              <p class="text-muted small">โดยที่: g = 9.8 ม./วิ.², h₀ = 0.35076 ม.</p>
             </div>
           </div>
         </div>
@@ -279,19 +412,19 @@
         <!-- Reference Table -->
         <div class="card">
           <div class="card-header">
-            <i class="fas fa-table me-2"></i>Reference Table
+            <i class="fas fa-table me-2"></i>ตารางอ้างอิง
           </div>
           <div class="card-body">
-            <small class="text-muted d-block mb-2">Selected distances (meters):</small>
+            <small class="text-muted d-block mb-2">ระยะทางจำลอง (เมตร):</small>
             <div class="table-responsive">
               <table class="table table-dark table-sm">
                 <thead>
                   <tr>
-                    <th>Angle</th>
-                    <th>2 m/s</th>
-                    <th>4 m/s</th>
-                    <th>6 m/s</th>
-                    <th>8 m/s</th>
+                    <th>มุม</th>
+                    <th>2 ม./วิ.</th>
+                    <th>4 ม./วิ.</th>
+                    <th>6 ม./วิ.</th>
+                    <th>8 ม./วิ.</th>
                   </tr>
                 </thead>
                 <tbody id="miniTableBody">
@@ -301,7 +434,7 @@
             </div>
             <button id="tableBtn" class="btn btn-outline-info mt-2 w-100" data-bs-toggle="modal"
               data-bs-target="#tableModal">
-              <i class="fas fa-expand me-2"></i>View Full Table
+              <i class="fas fa-expand me-2"></i>ดูตารางเต็ม
             </button>
           </div>
         </div>
@@ -309,7 +442,7 @@
     </div>
 
     <div class="footer">
-      Ideal Projectile Motion Simulator | Strike Height: 350.76 mm | Gravity: 9.8 m/s²
+      จำลองการเคลื่อนที่แบบโปรเจกไทล์ | ความสูงเริ่มต้น: 0.35 ม. | ความเร่งเนื่องจากแรงโน้มถ่วง: 9.8 ม./วิ.²
     </div>
   </div>
 
@@ -317,8 +450,10 @@
   <div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content bg-dark text-light">
-        <div class="modal-header">
-          <h5 class="modal-title" id="tableModalLabel">Complete Distance Reference Table (meters)</h5>
+        <div class="modal-header border-bottom border-dark">
+          <h5 class="modal-title" id="tableModalLabel">
+            <i class="fas fa-table me-2"></i>ตารางอ้างอิงระยะทาง (เมตร)
+          </h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -326,14 +461,14 @@
             <table class="table table-dark table-hover">
               <thead>
                 <tr>
-                  <th>Angle (°)</th>
-                  <th>2 m/s</th>
-                  <th>3 m/s</th>
-                  <th>4 m/s</th>
-                  <th>5 m/s</th>
-                  <th>6 m/s</th>
-                  <th>7 m/s</th>
-                  <th>8 m/s</th>
+                  <th>มุม (°)</th>
+                  <th>2 ม./วิ.</th>
+                  <th>3 ม./วิ.</th>
+                  <th>4 ม./วิ.</th>
+                  <th>5 ม./วิ.</th>
+                  <th>6 ม./วิ.</th>
+                  <th>7 ม./วิ.</th>
+                  <th>8 ม./วิ.</th>
                 </tr>
               </thead>
               <tbody id="fullTableBody">
@@ -342,8 +477,10 @@
             </table>
           </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div class="modal-footer border-top border-dark">
+          <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">
+            <i class="fas fa-times me-2"></i>ปิด
+          </button>
         </div>
       </div>
     </div>
@@ -387,30 +524,38 @@
       data: {
         datasets: [
           {
-            label: 'Trajectory',
+            label: 'เส้นทางการเคลื่อนที่',
             data: [],
             showLine: true,
-            borderColor: '#4cc9f0',
-            backgroundColor: 'rgba(76, 201, 240, 0.1)',
-            borderWidth: 3,
+            borderColor: '#ff8800',
+            backgroundColor: 'rgba(255, 136, 0, 0.15)',
+            borderWidth: 4,
             fill: true,
-            tension: 0.4
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#ffffff'
           },
           {
-            label: 'Ball Position',
+            label: 'ตำแหน่งวัตถุ',
             data: [],
-            pointBackgroundColor: '#f72585',
-            pointBorderColor: '#f72585',
+            pointBackgroundColor: '#ff5500',
+            pointBorderColor: '#ff5500',
             pointRadius: 8,
-            pointHoverRadius: 10
+            pointHoverRadius: 10,
+            pointBorderWidth: 2,
+            pointStyle: 'circle',
+            pointShadowBlur: 10,
+            pointShadowColor: 'rgba(255, 85, 0, 0.5)'
           },
           {
-            label: 'Ground',
+            label: 'พื้น',
             data: [],
             showLine: true,
             borderColor: '#555555',
             borderWidth: 1,
-            pointRadius: 0
+            pointRadius: 0,
+            borderDash: [5, 5]
           }
         ]
       },
@@ -424,7 +569,7 @@
           x: {
             title: {
               display: true,
-              text: 'Horizontal Distance (m)',
+              text: 'ระยะทางแนวนอน (ม.)',
               color: '#adb5bd'
             },
             grid: {
@@ -437,7 +582,7 @@
           y: {
             title: {
               display: true,
-              text: 'Height (m)',
+              text: 'ความสูง (ม.)',
               color: '#adb5bd'
             },
             min: 0,
@@ -463,7 +608,7 @@
             borderWidth: 1,
             callbacks: {
               label: function (context) {
-                return `(${context.parsed.x.toFixed(2)} m, ${context.parsed.y.toFixed(2)} m)`;
+                return `(${context.parsed.x.toFixed(2)} ม., ${context.parsed.y.toFixed(2)} ม.)`;
               }
             }
           }
@@ -574,8 +719,8 @@
 
     function updateSliderValues() {
       angleValue.textContent = `${angleSlider.value}°`;
-      velocityValue.textContent = `${parseFloat(velocitySlider.value).toFixed(1)} m/s`;
-      targetValue.textContent = `${parseFloat(targetSlider.value).toFixed(1)} m`;
+      velocityValue.textContent = `${parseFloat(velocitySlider.value).toFixed(2)} ม./วิ.`;
+      targetValue.textContent = `${parseFloat(targetSlider.value).toFixed(2)} ม.`;
     }
 
     function updateOutputValues() {
@@ -588,13 +733,42 @@
       const flightTime = calculateTimeOfFlight(velocity, angle);
       const targetError = Math.abs(range - targetDistance);
 
-      distanceOutput.textContent = `${range.toFixed(2)} m`;
-      maxHeightOutput.textContent = `${maxHeight.toFixed(2)} m`;
-      flightTimeOutput.textContent = `${flightTime.toFixed(2)} s`;
-      targetOutput.textContent = `${targetDistance.toFixed(2)} m`;
-      targetErrorOutput.textContent = `${targetError.toFixed(2)} m`;
+      distanceOutput.textContent = `${range.toFixed(2)} ม.`;
+      maxHeightOutput.textContent = `${maxHeight.toFixed(2)} ม.`;
+      flightTimeOutput.textContent = `${flightTime.toFixed(2)} วินาที`;
+      targetOutput.textContent = `${targetDistance.toFixed(2)} ม.`;
+      targetErrorOutput.textContent = `${targetError.toFixed(2)} ม.`;
 
       // Update chart with new trajectory
+      updateTrajectoryChart();
+    }
+
+    function calculateAndSetTarget() {
+      const angle = parseFloat(angleSlider.value);
+      const velocity = parseFloat(velocitySlider.value);
+      
+      // คำนวณ Range
+      const range = calculateRange(velocity, angle);
+      
+      // อัพเดทค่า targetSlider ให้ตรงกับค่า Range ที่คำนวณได้
+      targetSlider.value = range.toFixed(2);
+      
+      // อัพเดทค่า output ต่างๆ
+      const maxHeight = calculateMaxHeight(velocity, angle);
+      const flightTime = calculateTimeOfFlight(velocity, angle);
+      
+      distanceOutput.textContent = `${range.toFixed(2)} ม.`;
+      maxHeightOutput.textContent = `${maxHeight.toFixed(2)} ม.`;
+      flightTimeOutput.textContent = `${flightTime.toFixed(2)} วินาที`;
+      targetOutput.textContent = `${range.toFixed(2)} ม.`;
+      
+      // ตั้งค่า target error เป็น 0 เพราะตอนนี้ target จะอยู่ที่เดียวกับ range
+      targetErrorOutput.textContent = `0.00 ม.`;
+      
+      // อัพเดทค่า target ตาม Range ที่คำนวณได้
+      targetValue.textContent = `${parseFloat(targetSlider.value).toFixed(2)} ม.`;
+      
+      // อัพเดทกราฟ
       updateTrajectoryChart();
     }
 
@@ -608,6 +782,9 @@
 
       // Update trajectory dataset
       trajectoryChart.data.datasets[0].data = trajectory;
+      trajectoryChart.data.datasets[0].pointRadius = 0;
+      trajectoryChart.data.datasets[0].pointHoverRadius = 5;
+      trajectoryChart.data.datasets[0].borderWidth = 4;
 
       // Update ball position (initially at start)
       trajectoryChart.data.datasets[1].data = trajectory.length > 0 ? [trajectory[0]] : [];
@@ -633,13 +810,13 @@
       } else {
         // Add target line dataset if it doesn't exist
         trajectoryChart.data.datasets.push({
-          label: 'Target',
+          label: 'เป้าหมาย',
           data: [
             { x: targetDistance, y: 0 },
             { x: targetDistance, y: maxHeight }
           ],
           showLine: true,
-          borderColor: '#ffaa00',
+          borderColor: '#ffcc00',
           borderWidth: 2,
           borderDash: [6, 6],
           pointRadius: 0
@@ -685,8 +862,8 @@
         // Update time and height displays
         const totalTime = calculateTimeOfFlight(velocity, angle);
         const currentTime = (currentFrame / totalFrames) * totalTime;
-        timeDisplay.textContent = `Time: ${currentTime.toFixed(2)} s`;
-        heightDisplay.textContent = `Height: ${position.y.toFixed(2)} m`;
+        timeDisplay.textContent = `เวลา: ${currentTime.toFixed(2)} วินาที`;
+        heightDisplay.textContent = `ความสูง: ${position.y.toFixed(2)} ม.`;
 
         currentFrame++;
       }
@@ -707,8 +884,8 @@
       updateOutputValues();
 
       // Reset time and height displays
-      timeDisplay.textContent = 'Time: 0.00 s';
-      heightDisplay.textContent = `Height: ${INITIAL_HEIGHT.toFixed(2)} m`;
+      timeDisplay.textContent = 'เวลา: 0.00 วินาที';
+      heightDisplay.textContent = `ความสูง: ${INITIAL_HEIGHT.toFixed(2)} ม.`;
     }
 
     function populateTables() {
@@ -776,7 +953,7 @@
       updateOutputValues();
 
       // Alert the user
-      alert(`Optimal parameters calculated: Angle ${angle}°, Velocity ${velocity.toFixed(1)} m/s`);
+      alert(`คำนวณค่าที่เหมาะสมแล้ว: มุม ${angle}°, ความเร็ว ${velocity.toFixed(2)} ม./วิ.`);
     }
 
     // Event listeners
@@ -797,7 +974,7 @@
 
     simulateBtn.addEventListener('click', simulateTrajectory);
     optimizeBtn.addEventListener('click', optimizeParameters);
-    calculateBtn.addEventListener('click', updateOutputValues);
+    calculateBtn.addEventListener('click', calculateAndSetTarget);
     resetBtn.addEventListener('click', resetParameters);
     tableBtn.addEventListener('click', populateTables);
 
