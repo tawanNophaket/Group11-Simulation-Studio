@@ -346,6 +346,10 @@
                   <span class="variable-label"><i class="fas fa-arrow-up me-2"></i>ความสูงสูงสุด:</span>
                   <span id="maxHeightOutput" class="variable-value">0.00 ม.</span>
                 </div>
+                <div class="variable-item">
+                  <span class="variable-label"><i class="fas fa-angle-up me-2"></i>มุมยิง:</span>
+                  <span id="angleOutput" class="variable-value">45°</span>
+                </div>
               </div>
               <div class="col-md-6">
                 <div class="variable-item">
@@ -355,6 +359,10 @@
                 <div class="variable-item">
                   <span class="variable-label"><i class="fas fa-bullseye me-2"></i>ระยะเป้าหมาย:</span>
                   <span id="targetOutput" class="variable-value">2.00 ม.</span>
+                </div>
+                <div class="variable-item">
+                  <span class="variable-label"><i class="fas fa-tachometer-alt me-2"></i>ความเร็วต้น:</span>
+                  <span id="velocityOutput" class="variable-value">5.00 ม./วิ.</span>
                 </div>
                 <div class="variable-item">
                   <span class="variable-label"><i class="fas fa-exclamation-circle me-2"></i>ความคลาดเคลื่อน:</span>
@@ -398,13 +406,21 @@
               <input type="range" class="custom-range" id="targetSlider" min="0.5" max="6" step="0.1" value="2">
             </div>
 
+            <div class="mb-3">
+              <label for="heightSlider" class="form-label d-flex justify-content-between">
+                <span>ความสูงเริ่มต้น</span>
+                <span id="heightValue">0.35 ม.</span>
+              </label>
+              <input type="range" class="custom-range" id="heightSlider" min="0.1" max="2" step="0.05" value="0.35">
+            </div>
+
             <div class="text-center mt-4">
               <p class="mb-1 text-muted">สมการที่ใช้:</p>
               <div class="equation-box p-3 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 3px solid var(--primary);">
                 <p class="mb-1"><strong>ระยะทาง = (v₀·cos(θ))·t</strong></p>
                 <p class="mb-1"><strong>t = [(v₀·sin(θ)) + √((v₀·sin(θ))² + 2·g·h₀)]/g</strong></p>
               </div>
-              <p class="text-muted small">โดยที่: g = 9.8 ม./วิ.², h₀ = 0.35076 ม.</p>
+              <p class="text-muted small">โดยที่: g = 9.8 ม./วิ.², h₀ = <span id="equationHeight">0.35</span> ม.</p>
             </div>
           </div>
         </div>
@@ -442,7 +458,7 @@
     </div>
 
     <div class="footer">
-      จำลองการเคลื่อนที่แบบโปรเจกไทล์ | ความสูงเริ่มต้น: 0.35 ม. | ความเร่งเนื่องจากแรงโน้มถ่วง: 9.8 ม./วิ.²
+      จำลองการเคลื่อนที่แบบโปรเจกไทล์ | ความเร่งเนื่องจากแรงโน้มถ่วง: 9.8 ม./วิ.²
     </div>
   </div>
 
@@ -493,20 +509,26 @@
   <script>
     // Constants
     const GRAVITY = 9.8; // m/s²
-    const INITIAL_HEIGHT = 0.35076; // m
+    function getInitialHeight() {
+      return parseFloat(heightSlider.value);
+    }
 
     // DOM Elements
     const angleSlider = document.getElementById('angleSlider');
     const velocitySlider = document.getElementById('velocitySlider');
     const targetSlider = document.getElementById('targetSlider');
+    const heightSlider = document.getElementById('heightSlider');
     const angleValue = document.getElementById('angleValue');
     const velocityValue = document.getElementById('velocityValue');
     const targetValue = document.getElementById('targetValue');
+    const heightValue = document.getElementById('heightValue');
     const distanceOutput = document.getElementById('distanceOutput');
     const maxHeightOutput = document.getElementById('maxHeightOutput');
     const flightTimeOutput = document.getElementById('flightTimeOutput');
     const targetOutput = document.getElementById('targetOutput');
     const targetErrorOutput = document.getElementById('targetErrorOutput');
+    const angleOutput = document.getElementById('angleOutput');
+    const velocityOutput = document.getElementById('velocityOutput');
     const simulateBtn = document.getElementById('simulateBtn');
     const optimizeBtn = document.getElementById('optimizeBtn');
     const calculateBtn = document.getElementById('calculateBtn');
@@ -624,10 +646,11 @@
     function calculateTimeOfFlight(v0, angleDeg) {
       const angleRad = degreesToRadians(angleDeg);
       const vy = v0 * Math.sin(angleRad);
+      const initialHeight = getInitialHeight();
 
       // Using the formula: y = h0 + vy*t - 0.5*g*t^2 = 0
       // Solve for time when y = 0
-      const discriminant = Math.pow(vy, 2) + 2 * GRAVITY * INITIAL_HEIGHT;
+      const discriminant = Math.pow(vy, 2) + 2 * GRAVITY * initialHeight;
       const t = (vy + Math.sqrt(discriminant)) / GRAVITY;
 
       return t;
@@ -644,12 +667,13 @@
     function calculateMaxHeight(v0, angleDeg) {
       const angleRad = degreesToRadians(angleDeg);
       const vy = v0 * Math.sin(angleRad);
+      const initialHeight = getInitialHeight();
 
       // Time to reach maximum height (vy = 0)
       const tMax = vy / GRAVITY;
 
       // Calculate position at that time
-      const yMax = INITIAL_HEIGHT + vy * tMax - 0.5 * GRAVITY * Math.pow(tMax, 2);
+      const yMax = initialHeight + vy * tMax - 0.5 * GRAVITY * Math.pow(tMax, 2);
 
       return yMax;
     }
@@ -658,6 +682,7 @@
       const angleRad = degreesToRadians(angleDeg);
       const vx = v0 * Math.cos(angleRad);
       const vy = v0 * Math.sin(angleRad);
+      const initialHeight = getInitialHeight();
 
       const totalTime = calculateTimeOfFlight(v0, angleDeg);
       const timeStep = totalTime / (numPoints - 1);
@@ -667,7 +692,7 @@
       for (let i = 0; i < numPoints; i++) {
         const t = i * timeStep;
         const x = vx * t;
-        const y = INITIAL_HEIGHT + vy * t - 0.5 * GRAVITY * Math.pow(t, 2);
+        const y = initialHeight + vy * t - 0.5 * GRAVITY * Math.pow(t, 2);
 
         if (y >= 0) {
           trajectory.push({ x, y });
@@ -721,6 +746,10 @@
       angleValue.textContent = `${angleSlider.value}°`;
       velocityValue.textContent = `${parseFloat(velocitySlider.value).toFixed(2)} ม./วิ.`;
       targetValue.textContent = `${parseFloat(targetSlider.value).toFixed(2)} ม.`;
+      heightValue.textContent = `${parseFloat(heightSlider.value).toFixed(2)} ม.`;
+      
+      // อัพเดทค่าความสูงในสมการ
+      document.getElementById('equationHeight').textContent = parseFloat(heightSlider.value).toFixed(2);
     }
 
     function updateOutputValues() {
@@ -738,6 +767,10 @@
       flightTimeOutput.textContent = `${flightTime.toFixed(2)} วินาที`;
       targetOutput.textContent = `${targetDistance.toFixed(2)} ม.`;
       targetErrorOutput.textContent = `${targetError.toFixed(2)} ม.`;
+      
+      // อัพเดทค่ามุมยิงและความเร็วต้นในส่วนผลลัพธ์
+      angleOutput.textContent = `${angle}°`;
+      velocityOutput.textContent = `${parseFloat(velocity).toFixed(2)} ม./วิ.`;
 
       // Update chart with new trajectory
       updateTrajectoryChart();
@@ -761,6 +794,10 @@
       maxHeightOutput.textContent = `${maxHeight.toFixed(2)} ม.`;
       flightTimeOutput.textContent = `${flightTime.toFixed(2)} วินาที`;
       targetOutput.textContent = `${range.toFixed(2)} ม.`;
+      
+      // อัพเดทค่ามุมยิงและความเร็วต้นในส่วนผลลัพธ์
+      angleOutput.textContent = `${angle}°`;
+      velocityOutput.textContent = `${parseFloat(velocity).toFixed(2)} ม./วิ.`;
       
       // ตั้งค่า target error เป็น 0 เพราะตอนนี้ target จะอยู่ที่เดียวกับ range
       targetErrorOutput.textContent = `0.00 ม.`;
@@ -797,7 +834,7 @@
       ];
 
       // Update scales
-      const maxHeight = Math.max(...trajectory.map(point => point.y), INITIAL_HEIGHT) * 1.1;
+      const maxHeight = Math.max(...trajectory.map(point => point.y), getInitialHeight()) * 1.1;
       trajectoryChart.options.scales.x.max = maxDistance;
       trajectoryChart.options.scales.y.max = maxHeight;
 
@@ -830,6 +867,7 @@
     function simulateTrajectory() {
       const angle = parseFloat(angleSlider.value);
       const velocity = parseFloat(velocitySlider.value);
+      const initialHeight = getInitialHeight();
 
       // Calculate trajectory
       const trajectory = calculateTrajectory(velocity, angle);
@@ -878,6 +916,8 @@
       // Reset sliders to default values
       angleSlider.value = 45;
       velocitySlider.value = 5;
+      targetSlider.value = 2;
+      heightSlider.value = 0.35;
 
       // Update displays
       updateSliderValues();
@@ -885,7 +925,11 @@
 
       // Reset time and height displays
       timeDisplay.textContent = 'เวลา: 0.00 วินาที';
-      heightDisplay.textContent = `ความสูง: ${INITIAL_HEIGHT.toFixed(2)} ม.`;
+      heightDisplay.textContent = `ความสูง: ${getInitialHeight().toFixed(2)} ม.`;
+      
+      // อัพเดทค่ามุมยิงและความเร็วต้นในส่วนผลลัพธ์แบบ manual (ไม่ต้องรอ updateOutputValues)
+      angleOutput.textContent = `45°`;
+      velocityOutput.textContent = `5.00 ม./วิ.`;
     }
 
     function populateTables() {
@@ -952,6 +996,10 @@
       updateSliderValues();
       updateOutputValues();
 
+      // อัพเดทค่ามุมยิงและความเร็วต้นในส่วนผลลัพธ์แบบ manual (เผื่อ updateOutputValues ทำงานไม่สมบูรณ์)
+      angleOutput.textContent = `${angle}°`;
+      velocityOutput.textContent = `${parseFloat(velocity).toFixed(2)} ม./วิ.`;
+
       // Alert the user
       alert(`คำนวณค่าที่เหมาะสมแล้ว: มุม ${angle}°, ความเร็ว ${velocity.toFixed(2)} ม./วิ.`);
     }
@@ -968,6 +1016,11 @@
     });
 
     targetSlider.addEventListener('input', () => {
+      updateSliderValues();
+      updateOutputValues();
+    });
+
+    heightSlider.addEventListener('input', () => {
       updateSliderValues();
       updateOutputValues();
     });
