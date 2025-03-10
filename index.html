@@ -268,15 +268,157 @@
       background-color: rgba(255, 136, 0, 0.1) !important;
     }
 
-    /* Responsive adjustments */
+    /* Input field style - dark theme */
+    .form-control {
+      background-color: #1a1a1a;
+      border-color: #333;
+      color: white;
+    }
+
+    .form-control:focus {
+      background-color: #222;
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.25rem rgba(255, 136, 0, 0.25);
+    }
+
+    .input-group-text {
+      background-color: #2a2a2a;
+      color: var(--text-muted);
+      border-color: #333;
+    }
+
+    /* Additional mobile optimizations */
     @media (max-width: 768px) {
       .chart-container {
-        height: 320px;
+        height: 260px;
       }
       
       .btn {
         padding: 8px 14px;
         font-size: 0.85rem;
+        margin-bottom: 10px;
+        margin-right: 5px !important;
+      }
+      
+      .container {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      
+      .card {
+        margin-bottom: 1rem;
+        overflow: hidden;
+      }
+      
+      .card-header {
+        padding: 0.75rem 1rem;
+      }
+      
+      .variable-item {
+        margin-bottom: 10px;
+        padding: 6px 10px;
+      }
+      
+      .variable-value {
+        font-size: 1rem;
+      }
+      
+      .input-group-sm {
+        width: 100px !important;
+        max-width: 50%;
+      }
+      
+      .form-label {
+        font-size: 0.9rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      
+      .main-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+      
+      .card-header .badge {
+        font-size: 0.75rem;
+        margin-top: 4px;
+      }
+      
+      .table-responsive {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .btn {
+        width: calc(50% - 10px);
+        margin-right: 5px !important;
+        font-size: 0.8rem;
+        padding: 6px 8px;
+      }
+      
+      .variable-item {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .variable-value {
+        margin-top: 5px;
+        align-self: flex-end;
+      }
+      
+      .card-header .badge {
+        display: inline-block;
+        margin-top: 5px;
+        font-size: 0.7rem;
+      }
+      
+      .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .input-group-sm {
+        width: 130px !important; 
+      }
+
+      .mb-3 {
+        margin-bottom: 1.5rem !important;
+      }
+      
+      .card-body {
+        padding: 0.75rem;
+      }
+      
+      .chart-container {
+        padding: 10px;
+        height: 240px;
+      }
+      
+      #simulateBtn, #calculateBtn {
+        margin-bottom: 8px;
+      }
+      
+      /* ปรับปรุงการแสดงผลตาราง */
+      .table-responsive {
+        margin: 0 -0.75rem;
+        width: calc(100% + 1.5rem);
+      }
+      
+      .table {
+        font-size: 0.8rem;
+      }
+      
+      .table th, .table td {
+        padding: 4px;
+      }
+      
+      /* ปรับปรุงการแสดงผลปุ่มดูตารางเต็ม */
+      #tableBtn {
+        font-size: 0.8rem;
+        padding: 6px;
       }
     }
     
@@ -300,8 +442,73 @@
     </h1>
 
     <div class="row">
-      <!-- Left column - Trajectory Chart -->
-      <div class="col-lg-8">
+      <!-- Right column - Parameters only -->
+      <div class="col-lg-4 order-1 order-lg-2">
+        <!-- Input Variables -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <i class="fas fa-sliders-h me-2"></i>พารามิเตอร์
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label for="angleSlider" class="form-label d-flex justify-content-between">
+                <span>มุมยิง</span>
+                <div class="input-group input-group-sm w-50">
+                  <input type="number" class="form-control" id="angleInput" min="0" max="90" value="45">
+                  <span class="input-group-text">°</span>
+                </div>
+              </label>
+              <input type="range" class="custom-range" id="angleSlider" min="0" max="90" value="45">
+            </div>
+
+            <div class="mb-3">
+              <label for="velocitySlider" class="form-label d-flex justify-content-between">
+                <span>ความเร็วต้น</span>
+                <div class="input-group input-group-sm w-50">
+                  <input type="number" class="form-control" id="velocityInput" min="1" max="10" step="0.1" value="5">
+                  <span class="input-group-text">ม./วิ.</span>
+                </div>
+              </label>
+              <input type="range" class="custom-range" id="velocitySlider" min="1" max="10" step="0.1" value="5">
+            </div>
+
+            <div class="mb-3">
+              <label for="targetSlider" class="form-label d-flex justify-content-between">
+                <span>ระยะเป้าหมาย</span>
+                <div class="input-group input-group-sm w-50">
+                  <input type="number" class="form-control" id="targetInput" min="0.5" max="6" step="0.1" value="2">
+                  <span class="input-group-text">ม.</span>
+                </div>
+              </label>
+              <input type="range" class="custom-range" id="targetSlider" min="0.5" max="6" step="0.1" value="2">
+            </div>
+
+            <div class="mb-3">
+              <label for="heightSlider" class="form-label d-flex justify-content-between">
+                <span>ความสูงเริ่มต้น</span>
+                <div class="input-group input-group-sm w-50">
+                  <input type="number" class="form-control" id="heightInput" min="0.1" max="2" step="0.05" value="0.35">
+                  <span class="input-group-text">ม.</span>
+                </div>
+              </label>
+              <input type="range" class="custom-range" id="heightSlider" min="0.1" max="2" step="0.05" value="0.35">
+            </div>
+
+            <div class="text-center mt-4">
+              <p class="mb-1 text-muted">สมการที่ใช้:</p>
+              <div class="equation-box p-3 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 3px solid var(--primary);">
+                <p class="mb-1"><strong>ระยะทาง = (v₀·cos(θ))·t</strong></p>
+                <p class="mb-1"><strong>t = [(v₀·sin(θ)) + √((v₀·sin(θ))² + 2·g·h₀)]/g</strong></p>
+              </div>
+              <p class="text-muted small">โดยที่: g = 9.8 ม./วิ.², h₀ = <span id="equationHeight">0.35</span> ม.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left column - Chart, Results and Table -->
+      <div class="col-lg-8 order-2 order-lg-1">
+        <!-- Trajectory Chart -->
         <div class="card mb-4">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span>การจำลองเส้นทางการเคลื่อนที่ (ฟิสิกส์อุดมคติ)</span>
@@ -332,7 +539,7 @@
         </div>
 
         <!-- Output Variables -->
-        <div class="card">
+        <div class="card mb-4">
           <div class="card-header">
             <i class="fas fa-chart-line me-2"></i>ผลลัพธ์
           </div>
@@ -373,61 +580,9 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Right column - Parameters & Table -->
-      <div class="col-lg-4">
-        <!-- Input Variables -->
+        
+        <!-- Reference Table - ย้ายมาไว้ล่างสุด -->
         <div class="card mb-4">
-          <div class="card-header">
-            <i class="fas fa-sliders-h me-2"></i>พารามิเตอร์
-          </div>
-          <div class="card-body">
-            <div class="mb-3">
-              <label for="angleSlider" class="form-label d-flex justify-content-between">
-                <span>มุมยิง</span>
-                <span id="angleValue">45°</span>
-              </label>
-              <input type="range" class="custom-range" id="angleSlider" min="0" max="90" value="45">
-            </div>
-
-            <div class="mb-3">
-              <label for="velocitySlider" class="form-label d-flex justify-content-between">
-                <span>ความเร็วต้น</span>
-                <span id="velocityValue">5.00 ม./วิ.</span>
-              </label>
-              <input type="range" class="custom-range" id="velocitySlider" min="1" max="10" step="0.1" value="5">
-            </div>
-
-            <div class="mb-3">
-              <label for="targetSlider" class="form-label d-flex justify-content-between">
-                <span>ระยะเป้าหมาย</span>
-                <span id="targetValue">2.00 ม.</span>
-              </label>
-              <input type="range" class="custom-range" id="targetSlider" min="0.5" max="6" step="0.1" value="2">
-            </div>
-
-            <div class="mb-3">
-              <label for="heightSlider" class="form-label d-flex justify-content-between">
-                <span>ความสูงเริ่มต้น</span>
-                <span id="heightValue">0.35 ม.</span>
-              </label>
-              <input type="range" class="custom-range" id="heightSlider" min="0.1" max="2" step="0.05" value="0.35">
-            </div>
-
-            <div class="text-center mt-4">
-              <p class="mb-1 text-muted">สมการที่ใช้:</p>
-              <div class="equation-box p-3 mb-2" style="background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 3px solid var(--primary);">
-                <p class="mb-1"><strong>ระยะทาง = (v₀·cos(θ))·t</strong></p>
-                <p class="mb-1"><strong>t = [(v₀·sin(θ)) + √((v₀·sin(θ))² + 2·g·h₀)]/g</strong></p>
-              </div>
-              <p class="text-muted small">โดยที่: g = 9.8 ม./วิ.², h₀ = <span id="equationHeight">0.35</span> ม.</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reference Table -->
-        <div class="card">
           <div class="card-header">
             <i class="fas fa-table me-2"></i>ตารางอ้างอิง
           </div>
@@ -519,10 +674,10 @@
     const velocitySlider = document.getElementById('velocitySlider');
     const targetSlider = document.getElementById('targetSlider');
     const heightSlider = document.getElementById('heightSlider');
-    const angleValue = document.getElementById('angleValue');
-    const velocityValue = document.getElementById('velocityValue');
-    const targetValue = document.getElementById('targetValue');
-    const heightValue = document.getElementById('heightValue');
+    const angleInput = document.getElementById('angleInput');
+    const velocityInput = document.getElementById('velocityInput');
+    const targetInput = document.getElementById('targetInput');
+    const heightInput = document.getElementById('heightInput');
     const distanceOutput = document.getElementById('distanceOutput');
     const maxHeightOutput = document.getElementById('maxHeightOutput');
     const flightTimeOutput = document.getElementById('flightTimeOutput');
@@ -744,13 +899,21 @@
     }
 
     function updateSliderValues() {
-      angleValue.textContent = `${angleSlider.value}°`;
-      velocityValue.textContent = `${parseFloat(velocitySlider.value).toFixed(2)} ม./วิ.`;
-      targetValue.textContent = `${parseFloat(targetSlider.value).toFixed(2)} ม.`;
-      heightValue.textContent = `${parseFloat(heightSlider.value).toFixed(2)} ม.`;
+      // อัพเดทค่า input จาก slider
+      angleInput.value = angleSlider.value;
+      velocityInput.value = parseFloat(velocitySlider.value).toFixed(2);
+      targetInput.value = parseFloat(targetSlider.value).toFixed(2);
+      heightInput.value = parseFloat(heightSlider.value).toFixed(2);
       
       // อัพเดทค่าความสูงในสมการ
       document.getElementById('equationHeight').textContent = parseFloat(heightSlider.value).toFixed(2);
+    }
+
+    function updateSlidersFromInput() {
+      angleSlider.value = parseFloat(angleInput.value);
+      velocitySlider.value = parseFloat(velocityInput.value);
+      targetSlider.value = parseFloat(targetInput.value);
+      heightSlider.value = parseFloat(heightInput.value);
     }
 
     function updateOutputValues() {
@@ -784,8 +947,9 @@
       // คำนวณ Range
       const range = calculateRange(velocity, angle);
       
-      // อัพเดทค่า targetSlider ให้ตรงกับค่า Range ที่คำนวณได้
+      // อัพเดทค่า targetSlider และ input ให้ตรงกับค่า Range ที่คำนวณได้
       targetSlider.value = range.toFixed(2);
+      targetInput.value = range.toFixed(2);
       
       // อัพเดทค่า output ต่างๆ
       const maxHeight = calculateMaxHeight(velocity, angle);
@@ -802,9 +966,6 @@
       
       // ตั้งค่า target error เป็น 0 เพราะตอนนี้ target จะอยู่ที่เดียวกับ range
       targetErrorOutput.textContent = `0.00 ม.`;
-      
-      // อัพเดทค่า target ตาม Range ที่คำนวณได้
-      targetValue.textContent = `${parseFloat(targetSlider.value).toFixed(2)} ม.`;
       
       // อัพเดทกราฟ
       updateTrajectoryChart();
@@ -1005,7 +1166,44 @@
       alert(`คำนวณค่าที่เหมาะสมแล้ว: มุม ${angle}°, ความเร็ว ${velocity.toFixed(2)} ม./วิ.`);
     }
 
-    // Event listeners
+    // Event listeners for input fields
+    angleInput.addEventListener('change', () => {
+      // ตรวจสอบค่าที่กรอกให้อยู่ในช่วงที่กำหนด
+      if (parseFloat(angleInput.value) < 0) angleInput.value = 0;
+      if (parseFloat(angleInput.value) > 90) angleInput.value = 90;
+      
+      updateSlidersFromInput();
+      updateOutputValues();
+    });
+
+    velocityInput.addEventListener('change', () => {
+      // ตรวจสอบค่าที่กรอกให้อยู่ในช่วงที่กำหนด
+      if (parseFloat(velocityInput.value) < 1) velocityInput.value = 1;
+      if (parseFloat(velocityInput.value) > 10) velocityInput.value = 10;
+      
+      updateSlidersFromInput();
+      updateOutputValues();
+    });
+
+    targetInput.addEventListener('change', () => {
+      // ตรวจสอบค่าที่กรอกให้อยู่ในช่วงที่กำหนด
+      if (parseFloat(targetInput.value) < 0.5) targetInput.value = 0.5;
+      if (parseFloat(targetInput.value) > 6) targetInput.value = 6;
+      
+      updateSlidersFromInput();
+      updateOutputValues();
+    });
+
+    heightInput.addEventListener('change', () => {
+      // ตรวจสอบค่าที่กรอกให้อยู่ในช่วงที่กำหนด
+      if (parseFloat(heightInput.value) < 0.1) heightInput.value = 0.1;
+      if (parseFloat(heightInput.value) > 2) heightInput.value = 2;
+      
+      updateSlidersFromInput();
+      updateOutputValues();
+    });
+
+    // Event listeners for sliders
     angleSlider.addEventListener('input', () => {
       updateSliderValues();
       updateOutputValues();
